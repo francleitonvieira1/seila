@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Risadaria • Pesada</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@400;600&display=swap');
+        
+        body {
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+        .title-font {
+            font-family: 'Playfair Display', serif;
+        }
+
+        .card {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card:hover {
+            transform: translateY(-12px) scale(1.03);
+            box-shadow: 0 25px 50px -12px rgb(0 0 0 / 0.4);
+        }
+
+        .joke-setup {
+            cursor: pointer;
+        }
+
+        .modal {
+            animation: modalPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        
+        @keyframes modalPop {
+            0% { transform: scale(0.7); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .neon-text {
+            text-shadow: 0 0 15px rgb(236 72 153);
+        }
+    </style>
+</head>
+<body class="bg-zinc-950 text-zinc-200 min-h-screen">
+    <!-- Navbar -->
+    <nav class="border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md fixed w-full z-50">
+        <div class="max-w-6xl mx-auto px-6 py-5 flex justify-between items-center">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-pink-600 rounded-2xl flex items-center justify-center text-2xl">😈</div>
+                <h1 class="title-font text-3xl font-bold tracking-tight neon-text">Risadaria</h1>
+            </div>
+            
+            <div class="flex gap-8 text-sm font-medium">
+                <button onclick="showSection('home')" class="hover:text-pink-400 transition-colors nav-btn active">Início</button>
+                <button onclick="showSection('stories')" class="hover:text-pink-400 transition-colors nav-btn">Histórias</button>
+                <button onclick="showSection('jokes')" class="hover:text-pink-400 transition-colors nav-btn">Piadas Pesadas</button>
+                <button onclick="randomContent()" class="bg-zinc-800 hover:bg-pink-600 px-5 py-2 rounded-2xl flex items-center gap-2 transition-all">
+                    <i class="fas fa-dice"></i> Surpreenda-me
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <div class="pt-24 pb-12 max-w-6xl mx-auto px-6">
+        <!-- Hero -->
+        <div id="home" class="section">
+            <div class="text-center py-20">
+                <div class="inline-flex items-center gap-2 bg-zinc-900 border border-pink-500/30 text-pink-400 text-sm px-6 py-3 rounded-3xl mb-6">
+                    <span class="relative flex h-3 w-3">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-pink-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-3 w-3 bg-pink-500"></span>
+                    </span>
+                    +18 • Conteúdo sem filtro
+                </div>
+                
+                <h1 class="title-font text-7xl font-bold mb-6 leading-none">
+                    Histórias curtas<br>e <span class="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-violet-500">piadas pesadas</span>
+                </h1>
+                <p class="text-xl text-zinc-400 max-w-md mx-auto">
+                    Entre, relaxe e prepare o riso. Aqui não tem frescura.
+                </p>
+                
+                <div class="flex justify-center gap-6 mt-12">
+                    <button onclick="showSection('stories')" 
+                            class="bg-white text-zinc-900 px-10 py-4 rounded-3xl font-semibold text-lg hover:scale-105 transition-all flex items-center gap-3">
+                        <i class="fas fa-book"></i> Ler Histórias
+                    </button>
+                    <button onclick="showSection('jokes')" 
+                            class="border border-pink-500 text-pink-400 px-10 py-4 rounded-3xl font-semibold text-lg hover:bg-pink-500/10 transition-all flex items-center gap-3">
+                        <i class="fas fa-bomb"></i> Piadas Pesadas
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórias Section -->
+        <div id="stories" class="section hidden">
+            <h2 class="title-font text-5xl font-bold mb-10 flex items-center gap-4">
+                <span>📖</span> Histórias Curtas
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-8" id="stories-grid">
+                <!-- JS vai preencher -->
+            </div>
+        </div>
+
+        <!-- Piadas Section -->
+        <div id="jokes" class="section hidden">
+            <h2 class="title-font text-5xl font-bold mb-10 flex items-center gap-4">
+                <span>💣</span> Piadas Pesadas
+            </h2>
+            
+            <div class="grid md:grid-cols-2 gap-6" id="jokes-grid">
+                <!-- JS vai preencher -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-md z-[100] flex items-center justify-center p-6">
+        <div class="modal bg-zinc-900 max-w-lg w-full rounded-3xl overflow-hidden border border-zinc-700">
+            <div class="p-8">
+                <div id="modal-content"></div>
+            </div>
+            
+            <div class="border-t border-zinc-700 p-4 flex justify-end">
+                <button onclick="closeModal()" 
+                        class="px-8 py-3 text-sm font-medium hover:bg-zinc-800 rounded-2xl transition-colors">
+                    Fechar
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <footer class="border-t border-zinc-800 py-12 text-center text-zinc-500 text-sm mt-20">
+        <p>Feito com <span class="text-red-500">♥</span> e muito café (e sem censura)</p>
+        <p class="mt-2">Apenas para maiores de 18 anos • Divirta-se com responsabilidade</p>
+    </footer>
+
+    <script>
+        // Tailwind script
+        function initTailwind() {
+            // Já está incluído via CDN
+        }
+
+        // Dados
+        const stories = [
+            {
+                title: "A Viúva e o Vizinho",
+                excerpt: "Dona Marta, viúva recente, ouviu barulhos estranhos no apartamento ao lado...",
+                full: `
+                    <h3 class="text-3xl font-bold mb-6">A Viúva e o Vizinho</h3>
+                    <p class="leading-relaxed text-zinc-300">
+                        Dona Marta, viúva de 52 anos, acordou no meio da noite com gemidos vindos do apartamento ao lado. 
+                        Curiosa, colou o ouvido na parede. Os gemidos aumentavam. De repente, ouviu uma voz grossa:
+                    </p>
+                    <p class="my-6 italic text-pink-400">"Mais forte... assim... não para!"</p>
+                    <p class="leading-relaxed text-zinc-300">
+                        No dia seguinte, encontrou o vizinho novo no elevador.
+                    </p>
+                    <p class="mt-6 text-2xl">— Ouvi uns barulhos ontem à noite... tá tudo bem?</p>
+                    <p class="mt-4 text-pink-400 text-xl">O vizinho respondeu:</p>
+                    <p class="italic text-2xl mt-2">"Tá ótimo. Eu tava jogando sinuca sozinho e perdi a bola 8 atrás do sofá."</p>
+                `
+            },
+            {
+                title: "O Padre e a Confissão",
+                excerpt: "Um homem entra no confessionário extremamente nervoso...",
+                full: `
+                    <h3 class="text-3xl font-bold mb-6">O Padre e a Confissão</h3>
+                    <p class="leading-relaxed text-zinc-300">— Perdoe-me padre, porque eu pequei...</p>
+                    <p class="my-6 italic">— Fala, meu filho.</p>
+                    <p class="leading-relaxed text-zinc-300">
+                        — Eu traí minha esposa 7 vezes essa semana.
+                    </p>
+                    <p class="my-6 italic text-pink-400">O padre, chocado:</p>
+                    <p class="leading-relaxed text-zinc-300">
+                        — SETE VEZES? Meu filho, isso é muito grave... Qual é o nome da mulher?
+                    </p>
+                    <p class="mt-8 text-2xl">"Todas se chamam 'Fulana', padre... eu não sou bom com nomes."</p>
+                `
+            },
+            {
+                title: "A Entrevista de Emprego",
+                excerpt: "Uma linda morena faz entrevista para secretária...",
+                full: `
+                    <h3 class="text-3xl font-bold mb-6">A Entrevista de Emprego</h3>
+                    <p class="leading-relaxed text-zinc-300">
+                        O chefe: "Preciso de alguém que saiba lidar com pressão, seja discreta e aguente horas extras..."
+                    </p>
+                    <p class="my-8 text-2xl">A moça sorri e responde:</p>
+                    <p class="italic text-pink-400">"Pode deixar, chefe. Meu ex-marido me treinou muito bem nesses três quesitos."</p>
+                `
+            }
+        ]
+
+        const jokes = [
+            {
+                setup: "Por que a loira olhava pro envelope de leite?",
+                punch: "Porque estava escrito 'abre aqui'."
+            },
+            {
+                setup: "Qual a diferença entre uma mulher e uma geladeira?",
+                punch: "A geladeira não ronca quando tá cheia de carne."
+            },
+            {
+                setup: "O que a mãe do Batman dizia quando ele saía?",
+                punch: "Vai com Deus, mas volta com a mãe."
+            },
+            {
+                setup: "Por que o Batman colocou o Batmóvel no seguro?",
+                punch: "Porque ele tinha medo do Robin."
+            },
+            {
+                setup: "Qual é o cúmulo da paciência?",
+                punch: "Ser corno e ainda pagar pensão."
+            },
+            {
+                setup: "Por que o homem foi preso no supermercado?",
+                punch: "Porque ele estava pegando as coxas da frango."
+            }
+        ]
+
+        // Renderizar histórias
+        function renderStories() {
+            const container = document.getElementById('stories-grid')
+            container.innerHTML = ''
+            
+            stories.forEach((story, index) => {
+                const card = document.createElement('div')
+                card.className = `card bg-zinc-900 border border-zinc-800 rounded-3xl p-8 cursor-pointer`
+                card.innerHTML = `
+                    <div class="text-4xl mb-6">📖</div>
+                    <h3 class="text-2xl font-bold mb-3">${story.title}</h3>
+                    <p class="text-zinc-400 mb-8 line-clamp-3">${story.excerpt}</p>
+                    <button onclick="readStory(${index}); event.stopImmediatePropagation()" 
+                            class="text-pink-400 text-sm font-medium flex items-center gap-2 hover:gap-3 transition-all">
+                        Ler história completa 
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                `
+                card.onclick = () => readStory(index)
+                container.appendChild(card)
+            })
+        }
+
+        // Renderizar piadas
+        function renderJokes() {
+            const container = document.getElementById('jokes-grid')
+            container.innerHTML = ''
+            
+            jokes.forEach((joke, index) => {
+                const card = document.createElement('div')
+                card.className = `card bg-zinc-900 border border-zinc-800 rounded-3xl p-8 joke-setup`
+                card.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <div class="text-4xl mb-6">💣</div>
+                        <span class="text-xs bg-zinc-800 px-3 py-1 rounded-full">+18</span>
+                    </div>
+                    <p class="text-lg leading-relaxed">${joke.setup}</p>
+                    <div class="mt-8 pt-8 border-t border-dashed border-zinc-700">
+                        <button onclick="revealPunch(${index}); event.stopImmediatePropagation()" 
+                                class="w-full py-4 bg-zinc-800 hover:bg-pink-600 rounded-2xl text-sm font-medium transition-all">
+                            Revelar a porrada
+                        </button>
+                    </div>
+                `
+                container.appendChild(card)
+            })
+        }
+
+        // Funções
+        function readStory(index) {
+            const story = stories[index]
+            document.getElementById('modal-content').innerHTML = story.full
+            document.getElementById('modal').classList.remove('hidden')
+            document.getElementById('modal').classList.add('flex')
+        }
+
+        function revealPunch(index) {
+            const joke = jokes[index]
+            document.getElementById('modal-content').innerHTML = `
+                <div class="text-center">
+                    <div class="text-6xl mb-8">😂</div>
+                    <p class="text-xl mb-4">${joke.setup}</p>
+                    <p class="text-pink-400 text-3xl leading-relaxed font-medium">${joke.punch}</p>
+                </div>
+            `
+            document.getElementById('modal').classList.remove('hidden')
+            document.getElementById('modal').classList.add('flex')
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('modal')
+            modal.classList.add('hidden')
+            modal.classList.remove('flex')
+        }
+
+        function showSection(section) {
+            document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'))
+            document.getElementById(section).classList.remove('hidden')
+            
+            // Atualiza botões ativos
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active', 'text-pink-400'))
+        }
+
+        function randomContent() {
+            const isJoke = Math.random() > 0.5
+            
+            if (isJoke) {
+                showSection('jokes')
+                const randomIndex = Math.floor(Math.random() * jokes.length)
+                setTimeout(() => {
+                    revealPunch(randomIndex)
+                }, 300)
+            } else {
+                showSection('stories')
+                const randomIndex = Math.floor(Math.random() * stories.length)
+                setTimeout(() => {
+                    readStory(randomIndex)
+                }, 300)
+            }
+        }
+
+        // Inicialização
+        window.onload = function() {
+            renderStories()
+            renderJokes()
+            
+            // Mostrar home inicialmente
+            document.getElementById('home').classList.remove('hidden')
+            
+            // Fechar modal com ESC
+            document.addEventListener('keydown', function(e) {
+                if (e.key === "Escape") {
+                    closeModal()
+                }
+            })
+            
+            // Clique fora do modal
+            document.getElementById('modal').addEventListener('click', function(e) {
+                if (e.target.id === 'modal') closeModal()
+            })
+        }
+    </script>
+</body>
+</html>
